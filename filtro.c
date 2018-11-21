@@ -4,24 +4,8 @@
 #include <time.h>
 #include <unistd.h>
 
-/*
-    sumaArr: int[] int -> int
-    Dado un array de enteros y la longitud del mismo, devuelve la suma
-    de sus elementos
-*/
-int sumaArr(int array[], int len){
-    
-    int suma = 0;
-
-    for (int i = 0; i < len; i++){
-        suma += array[i];
-    }
-
-    return suma;
-}
-
 /* 
-    revertirPalabra(): char[] -> char[]
+    revertirPalabra(): char[] char[] -> None
     Dada un array de caracteres (string) y un array vacío de tamaño longitud de string+1, reemplaza
     el segundo array por el reverso del primero (string al revés).
 */
@@ -37,7 +21,7 @@ void revertirPalabra(char str[], char reversa[]){
 /*
     stringContenido: char[] char[] -> Int
     Dado dos arrays de char, devuelve 1 si el segundo array esta contenido dentro del primero,
-    en caso contrario devuelve 0
+    en caso contrario devuelve 0.
 */
 int stringContenido(char strExt[], char strInt[]){
     // Ext: String exterior, Int: String interior.
@@ -61,34 +45,32 @@ int stringContenido(char strExt[], char strInt[]){
 }
 
 /*
-    filtros: char[] char[] Int -> None
-    Dado un array de strings, filtra las palabras y coloca las que cumplan los requisitos dados en un array, devuelve
-    la cantidad de palabras que cumplieron con los requisitos
+    filtros: char[] int -> None
+    Dado un array de strings, si un string no cumple con los criterios se reemplaza por un string vacío, devuelve
+    la cantidad de palabras que cumplieron con los criterios.
 */
+int filtros(char palabrasElegidas[][50], int cantAElegir){
 
+    int cantElegidas = 0;
 
-int filtros(char palabras[][], char palabrasFiltradas[][], int cumpleCondicion[]){
-
-    int cantFiltradas;
-
-    for (int i = 0; i < 100; i++){
-        if (cumpleCondicion[i]){
+    for (int i = 0; i < cantAElegir; i++){
+        if (strlen(palabrasElegidas[i]) != 0){
             // Primer filtro (Eliminar palabras cuya longitud sea menor a 4 o mayor a 15) 
-            if (strlen(palabras[i]) < 4 || strlen(palabras[i]) > 15){
-                cumpleCondicion[i] = 0;
+            if (strlen(palabrasElegidas[i]) < 4 || strlen(palabrasElegidas[i]) > 15){
+                palabrasElegidas[i][0] = '\0';
             }else{
                 // Inicializa la variable reversa
-                char reversa[strlen(palabras[i])+1];
-                revertirPalabra(palabras[i], reversa);
+                char reversa[strlen(palabrasElegidas[i])+1];
+                revertirPalabra(palabrasElegidas[i], reversa);
 
-                for (int j = 0; j < cantInicial; j++){
-                    if (i != j && cumpleCondicion[j]){
-                        // Segundo filtro (Eliminar palabras repetidas y su reversa)
-                        if (strcmp(palabras[i], palabras[j]) == 0 || strcmp(palabras[i], reversa) == 0){
-                            cumpleCondicion[j] = 0;
+                for (int j = 0; j < cantAElegir; j++){
+                    if (i != j && strlen(palabrasElegidas[j]) != 0){
+                        // Segundo filtro (Eliminar palabras repetidas tanto al derecho como al revés)
+                        if (strcmp(palabrasElegidas[i], palabrasElegidas[j]) == 0 || strcmp(palabrasElegidas[i], reversa) == 0){
+                            palabrasElegidas[j][0] = '\0';
                         // Tercer filtro (Eliminar palabras contenidas dentro de la otra)
-                        }else if (stringContenido(palabras[i], palabras[j]) || stringContenido(reversa, palabras[j])){
-                            cumpleCondicion[j] = 0;
+                        }else if (stringContenido(palabrasElegidas[i], palabrasElegidas[j]) || stringContenido(reversa, palabrasElegidas[j])){
+                            palabrasElegidas[j][0] = '\0';
                         }
                     }
                 }
@@ -96,10 +78,37 @@ int filtros(char palabras[][], char palabrasFiltradas[][], int cumpleCondicion[]
         }
     }
 
-    // Calcula la cantidad de palabras que pasaron todos los filtros
-    cantFiltradas = sumaArr(cumpleCondicion, 100);
+    // Cuenta cuantas palabras cumplieron con los criterios
+    for (int i = 0; i < cantAElegir; i++){
+        if (strlen(palabrasElegidas[i]) != 0){
+            cantElegidas++;
+        }
+    }
 
-    return cantFiltradas;
+    return cantElegidas;
+}
+
+/*
+    elegirAleatoriamente: char[][] char[][] int int int -> int
+    Dado los arrays con las palabras ingresadas, las palabras ya elegidas (o strings vacíos en caso de que sea la primer iteración),
+    la cantidad de palabras ingresadas, la cantidad que quedan para elegir entre estas mismas y la cantidad de palabraas que hay que elegir.
+    Mientras haya palabras para elegir y haya un lugar disponible en palabrasElegidas, coloca una palabra al azar del primer array
+    en el segundo en una posición donde haya un string vacío.
+    Devuelve la cantidad de palabras restantes que quedan para elegir
+*/
+int elegirAleatoriamente(char palabras[][50], char palabrasElegidas[][50], int cantPalabrasIngresadas, int cantPalabrasRestantes, int cantAElegir){
+    for (int i = 0; i < cantAElegir; i++){
+        while (strlen(palabrasElegidas[i]) == 0 && cantPalabrasRestantes != 0){
+            int random = rand() % cantPalabrasIngresadas; // Selección de un índice aleatorio
+            if (strlen(palabras[random]) != 0){
+                strcpy(palabrasElegidas[i], palabras[random]);
+                palabras[random][0] = '\0'; // Evita que se vuelva a elegir la misma palabra
+                cantPalabrasRestantes--;
+            }
+        }
+    }
+
+    return cantPalabrasRestantes;
 }
 
 
@@ -118,80 +127,86 @@ int filtros(char palabras[][], char palabrasFiltradas[][], int cumpleCondicion[]
         /_/ \_\    ██║ ╚═╝ ██║██║  ██║██║██║ ╚████║
                    ╚═╝     ╚═╝╚═╝  ╚═╝╚═╝╚═╝  ╚═══╝                                                                                                       
 
-    main(): None -> Int
-    Inicializa el programa 
+    main(): None -> int
+    Abre el archivo con las palabras a filtrar, las escribe en un array, elige al azar una cantidad aleatoria, 
+    y las filtra. Cuando cumpla con la cantidad aleatoria de palabras a elegir, las escribe en un archivo de salida,
+    en caso contrario printea un mensaje de error.
 */
 int main(){
 
     // Declaración de variables
     FILE *archivo;
     char palabras[100][50];
-    int cantInicial = 0, contadorElegidas = 0, cantFiltradas = 0, cantPalabrasRestantes;
-    int tamRandom;
+    int cantPalabrasIngresadas = 0; // Representa la cantidad de palabras ingresadas en el archivo
+    int cantPalabrasRestantes; // Representa la cantidad de palabras restantes que quedan para ser elegidas aleatoriamente
+    int cantAElegir; // Este número aleatorio en el rango [1, cantPalabrasIngresadas] representa la cantidad de palabras que se 
+    // van a elegir aleatoriamente
+    int cantElegidas = 0; // Representa la cantidad de palabras elegidas que cumplen con los criterios dados 
+    
 
     // Inicializa el generador de números aleatorios
     srand(time(NULL));
 
-    // Apertura del archivo de entrada
-    archivo = fopen("aFiltrar.txt", "r");
-
     // Lectura inicial del archivo a un array.
-    if (archivo) {
+    if (access("aFiltrar.txt", F_OK) == 0){ // Comprueba si el archivo con las palabras a filtrar existe
+        
+        archivo = fopen("aFiltrar.txt", "r"); // Apertura del archivo de entrada
+        
         char buff[50]; // Almacenamiento temporal de la palabra
         while (fscanf(archivo, "%s", buff) != EOF){
-                strcpy(palabras[cantInicial], buff);
-                cantInicial++; // Cuenta la cantidad de palabras que se ingresaron.
+                strcpy(palabras[cantPalabrasIngresadas], buff);
+                cantPalabrasIngresadas++; // Cuenta la cantidad de palabras que se ingresaron.
         }
         fclose(archivo);
-	}
+	
 
-    // Definición del array con la selección de palabras elegidas aleatoriamente y su tamaño
-    tamRandom = (rand() % cantInicial) + 1;
-    char palabrasRandom[tamRandom][50];
+        // Al principio la cantidad de palabras que pueden ser elegidas va a ser a la cantidad total de palabras ingresadas
+        cantPalabrasRestantes = cantPalabrasIngresadas;
 
-    // Primera selección de palabras aleatorias
-    while (contadorElegidas != tamRandom){
-        int random = rand() % cantInicial; // Selección de un índice aleatorio
-        if (palabras[random][0] != '\0'){
-            strcpy(palabrasRandom[contadorElegidas], palabras[random]);
-            palabras[random][0] = '\0';
-            contadorElegidas++;
-            cantPalabrasRestantes--;
-        }
-    }
-
-    // Array cuyos elementos son 1 (TRUE) si la palabra que se encuentra
-    // en el mismo índice en palabras cumple las condiciones.
-    int cumpleCondicion[100]; 
-    // Se inicializa el array con todos los elementos iguales a 1 para
-    // ir igualando a 0 a medida que una palabra no cumpla con los requisitos
-    for (int i = 0; i < cantInicial; i++){
-        cumpleCondicion[i] = 1;
-    }
-    // Los restantes elementos (indices donde no se encuentran palabras) se igualan a 0
-    for (int i = cantInicial; i < 100; i++){
-        cumpleCondicion[i] = 0;
-    }
+        // Definición del array con la selección de palabras elegidas aleatoriamente y su tamaño
+        cantAElegir = (rand() % cantPalabrasIngresadas) + 1;
+        char palabrasElegidas[cantAElegir][50];
+        // Inicialización del array con todos sus elementos iguales al string vacío
+        for (int i = 0; i < cantAElegir; i++){
+            palabrasElegidas[i][0] = '\0';
+        } 
     
 
-    // Mientras la cantidad de palabras que cumplen los requisitos sea distinto a la cantidad elegida
-    // eligirá nuevas palabras
-    cantFiltradas = 0;
-    while (contadorElegidas != tamRandom && cantPalabrasRestantes != 0){
-        cantFiltradas = filtros(palabras, palabrasRandom, cumpleCondicion);
+        // Primera selección de palabras aleatorias
+        cantPalabrasRestantes = elegirAleatoriamente(palabras, palabrasElegidas, cantPalabrasIngresadas, cantPalabrasRestantes, cantAElegir);
+    
+        // Se filtran las palabras hasta que obtengan la cantidad requerida o ya no haya palabras restantes para elegir
+        while (cantElegidas != cantAElegir && cantPalabrasRestantes != 0){
+            cantElegidas = filtros(palabrasElegidas, cantAElegir);
+            if (cantElegidas != cantAElegir){
+                cantPalabrasRestantes = elegirAleatoriamente(palabras, palabrasElegidas, cantPalabrasIngresadas, cantPalabrasRestantes, cantAElegir);
+           }
+        }
+
+        for (int i = 0; i < cantPalabrasIngresadas; i++){
+            printf("%d %s\n",i, palabras[i]);
+        }
+        for (int i = 0; i < cantAElegir; i++){
+            printf("%d %s\n", i, palabrasElegidas[i]);
+        }
+        printf("%d %d %d\n", cantAElegir, cantElegidas, cantPalabrasRestantes);
+
+        // Condiciones finales
+        if (cantAElegir == cantElegidas){
+            // Escritura al archivo de salida
+            archivo = fopen("palabras.txt", "w");
+            for (int i = 0; i < cantAElegir-1; i ++){
+                fputs(palabrasElegidas[i], archivo);
+                fputs("\n", archivo);
+            }
+            fputs(palabrasElegidas[cantAElegir-1], archivo);
+            fclose(archivo);
+        }else{
+            printf("No se pudo obtener la cantidad necesaria de palabras\n");
+        }
+
+    }else{
+        printf("No existe el archivo de entrada (aFiltrar.txt)\n");
     }
-
-
-    /*
-    // Escritura del archivo de salida
-    archivo = fopen("palabras.txt", "w");
-    for (int i = 0; i < tamanioRand-1; i ++){
-        fputs(palabrasElegidas[i], archivo);
-        fputs("\n", archivo);
-    }
-    fputs(palabrasElegidas[tamanioRand-1], archivo);
-    fclose(archivo);
-    */
-
     return 0;
 }
