@@ -139,8 +139,8 @@ int main(){
     char palabras[100][50];
     int cantPalabrasIngresadas = 0; // Representa la cantidad de palabras ingresadas en el archivo
     int cantPalabrasRestantes; // Representa la cantidad de palabras restantes que quedan para ser elegidas aleatoriamente
-    int cantAElegir; // Este número aleatorio en el rango [1, cantPalabrasIngresadas] representa la cantidad de palabras que se 
-    // van a elegir aleatoriamente
+    int cantAElegir;// Este número aleatorio en el rango [1, cantPalabrasIngresadas] representa la cantidad de palabras que se 
+    								// van a elegir aleatoriamente
     int cantElegidas = 0; // Representa la cantidad de palabras elegidas que cumplen con los criterios dados 
     
 
@@ -180,7 +180,10 @@ int main(){
             cantElegidas = filtros(palabrasElegidas, cantAElegir);
             if (cantElegidas != cantAElegir){
                 cantPalabrasRestantes = elegirAleatoriamente(palabras, palabrasElegidas, cantPalabrasIngresadas, cantPalabrasRestantes, cantAElegir);
-           }
+            }
+						if (cantPalabrasRestantes == 0){
+							cantElegidas = filtros(palabrasElegidas, cantAElegir);
+						}
         }
 
         for (int i = 0; i < cantPalabrasIngresadas; i++){
@@ -203,10 +206,12 @@ int main(){
             fclose(archivo);
         }else{
             printf("No se pudo obtener la cantidad necesaria de palabras\n");
+						return -1;
         }
 
     }else{
         printf("No existe el archivo de entrada (aFiltrar.txt)\n");
+				return -1;
     }
     return 0;
 }
