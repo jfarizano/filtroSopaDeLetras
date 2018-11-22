@@ -83,11 +83,9 @@ int filtros(char palabrasElegidas[][50], int cantAElegir){
 
                 for (int j = 0; j < cantAElegir; j++){
                     if (i != j && strlen(palabrasElegidas[j]) != 0){
-                        // Segundo filtro (Eliminar palabras repetidas tanto al derecho como al revés)
-                        if (strcmp(palabrasElegidas[i], palabrasElegidas[j]) == 0 || strcmp(palabrasElegidas[i], reversa) == 0){
-                            palabrasElegidas[j][0] = '\0';
-                        // Tercer filtro (Eliminar palabras contenidas dentro de otras)
-                        }else if (stringContenido(palabrasElegidas[i], palabrasElegidas[j]) || stringContenido(reversa, palabrasElegidas[j])){
+                        // Segundo y tercer filtro (eliminar palabras repetidas, sus reversas
+                        // y palabras contenidas en otras)
+                        if (stringContenido(palabrasElegidas[i], palabrasElegidas[j]) || stringContenido(reversa, palabrasElegidas[j])){
                             palabrasElegidas[j][0] = '\0';
                         }
                     }
